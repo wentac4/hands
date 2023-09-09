@@ -6,16 +6,15 @@ public class HandPoints : MonoBehaviour
 {
     public LeapProvider leapProvider;
 
-    public GameObject[] handPoints;
+    public GameObject[] leftHandPoints;
+    public GameObject[] rightHandPoints;
 
     private Vector3 initialPosition = new Vector3(0, 0, 0);
 
-    void Update()
+    private void RenderHandPoints(GameObject[] handPoints, Hand hand)
     {
-        if (leapProvider.CurrentFrame.Hands.Count > 0)
+        if (hand != null)
         {
-            Hand hand = leapProvider.CurrentFrame.Hands[0];
-
             // palm
             handPoints[0].transform.localPosition = hand.PalmPosition;
 
@@ -77,12 +76,18 @@ public class HandPoints : MonoBehaviour
             handPoints[20].transform.localPosition = intermediate.NextJoint;
             handPoints[21].transform.localPosition = distal.NextJoint;
         }
-        else // if there are no hands, return hand points to initial position (0, 0, 0), so that they are not visible to the camera
+        else // if hand is null, return hand points to initial position (0, 0, 0), so that they are not visible to the camera
         {
             foreach (var point in handPoints)
             {
                 point.transform.localPosition = initialPosition;
             }
         }
+    }
+
+    void Update()
+    {
+        RenderHandPoints(leftHandPoints, leapProvider.CurrentFrame.GetHand(Chirality.Left));   // left hand
+        RenderHandPoints(rightHandPoints, leapProvider.CurrentFrame.GetHand(Chirality.Right)); // right hand
     }
 }
