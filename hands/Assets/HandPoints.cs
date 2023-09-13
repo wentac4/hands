@@ -1,22 +1,20 @@
-using Leap;
-using Leap.Unity;
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
-public class HandPoints : MonoBehaviour
+using Leap;
+using Leap.Unity;
+
+public static class HandPoints
 {
-    public LeapProvider leapProvider;
+    private static Vector3 initialPosition = new Vector3(0, 0, 0);
 
-    public GameObject[] leftHandPoints;
-    public GameObject[] rightHandPoints;
-
-    private Vector3 initialPosition = new Vector3(0, 0, 0);
-
-    private void RenderHandPoints(GameObject[] handPoints, Hand hand)
+    public static void UpdateHandPoints(GameObject[] points, Hand hand)
     {
         if (hand != null)
         {
             // palm
-            handPoints[0].transform.localPosition = hand.PalmPosition;
+            points[0].transform.localPosition = hand.PalmPosition;
 
             // thumb
             Finger finger = hand.Fingers[0];
@@ -26,10 +24,10 @@ public class HandPoints : MonoBehaviour
             Bone intermediate = finger.bones[2];
             Bone distal = finger.bones[3];
 
-            //handPoints[1].transform.localPosition = metacarpal.PrevJoint;
-            handPoints[1].transform.localPosition = proximal.NextJoint;
-            handPoints[2].transform.localPosition = intermediate.NextJoint;
-            handPoints[3].transform.localPosition = distal.NextJoint;
+            //points[1].transform.localPosition = metacarpal.PrevJoint;
+            points[1].transform.localPosition = proximal.NextJoint;
+            points[2].transform.localPosition = intermediate.NextJoint;
+            points[3].transform.localPosition = distal.NextJoint;
 
             // index
             finger = hand.Fingers[1];
@@ -39,11 +37,11 @@ public class HandPoints : MonoBehaviour
             intermediate = finger.bones[2];
             distal = finger.bones[3];
 
-            handPoints[4].transform.localPosition = metacarpal.PrevJoint;
-            handPoints[5].transform.localPosition = metacarpal.NextJoint;
-            handPoints[6].transform.localPosition = proximal.NextJoint;
-            handPoints[7].transform.localPosition = intermediate.NextJoint;
-            handPoints[8].transform.localPosition = distal.NextJoint;
+            points[4].transform.localPosition = metacarpal.PrevJoint;
+            points[5].transform.localPosition = metacarpal.NextJoint;
+            points[6].transform.localPosition = proximal.NextJoint;
+            points[7].transform.localPosition = intermediate.NextJoint;
+            points[8].transform.localPosition = distal.NextJoint;
 
             // middle, ring
             for (int f = 2; f < 4; f++)
@@ -55,11 +53,11 @@ public class HandPoints : MonoBehaviour
                 intermediate = finger.bones[2];
                 distal = finger.bones[3];
 
-                //handPoints[9+((f-2)*5)].transform.localPosition = metacarpal.PrevJoint;
-                handPoints[9+((f-2)*4)].transform.localPosition = metacarpal.NextJoint;
-                handPoints[9+((f-2)*4)+1].transform.localPosition = proximal.NextJoint;
-                handPoints[9+((f-2)*4)+2].transform.localPosition = intermediate.NextJoint;
-                handPoints[9+((f-2)*4)+3].transform.localPosition = distal.NextJoint;
+                //points[9+((f-2)*5)].transform.localPosition = metacarpal.PrevJoint;
+                points[9+((f-2)*4)].transform.localPosition = metacarpal.NextJoint;
+                points[9+((f-2)*4)+1].transform.localPosition = proximal.NextJoint;
+                points[9+((f-2)*4)+2].transform.localPosition = intermediate.NextJoint;
+                points[9+((f-2)*4)+3].transform.localPosition = distal.NextJoint;
             }
 
             // pinky
@@ -70,24 +68,18 @@ public class HandPoints : MonoBehaviour
             intermediate = finger.bones[2];
             distal = finger.bones[3];
 
-            handPoints[17].transform.localPosition = metacarpal.PrevJoint;
-            handPoints[18].transform.localPosition = metacarpal.NextJoint;
-            handPoints[19].transform.localPosition = proximal.NextJoint;
-            handPoints[20].transform.localPosition = intermediate.NextJoint;
-            handPoints[21].transform.localPosition = distal.NextJoint;
+            points[17].transform.localPosition = metacarpal.PrevJoint;
+            points[18].transform.localPosition = metacarpal.NextJoint;
+            points[19].transform.localPosition = proximal.NextJoint;
+            points[20].transform.localPosition = intermediate.NextJoint;
+            points[21].transform.localPosition = distal.NextJoint;
         }
         else // if hand is null, return hand points to initial position (0, 0, 0), so that they are not visible to the camera
         {
-            foreach (var point in handPoints)
+            foreach (var point in points)
             {
                 point.transform.localPosition = initialPosition;
             }
         }
-    }
-
-    void Update()
-    {
-        RenderHandPoints(leftHandPoints, leapProvider.CurrentFrame.GetHand(Chirality.Left));   // left hand
-        RenderHandPoints(rightHandPoints, leapProvider.CurrentFrame.GetHand(Chirality.Right)); // right hand
     }
 }
