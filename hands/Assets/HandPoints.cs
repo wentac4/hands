@@ -5,13 +5,36 @@ using UnityEngine;
 using Leap;
 using Leap.Unity;
 
+public interface IHand
+{
+    List<Finger> Fingers { get; }
+    Vector3 PalmPosition { get; }
+}
+
+public class LeapHand : IHand
+{
+    private List<Finger> fingers;
+    private Vector3 palmPosition;
+
+    public LeapHand(List<Finger> newFingers = null, Vector3 newPalmPosition = new Vector3())
+    {
+        fingers = newFingers;
+        palmPosition = newPalmPosition;
+    }
+
+    public List<Finger> Fingers { get => fingers; }
+    public Vector3 PalmPosition { get => palmPosition; }
+    
+    public static implicit operator LeapHand(Hand hand) => new LeapHand(hand.Fingers, hand.PalmPosition);
+}
+
 public static class HandPoints
 {
     private static Vector3 initialPosition = new Vector3(0, 0, 0);
 
-    public static void UpdateHandPoints(GameObject[] points, Hand hand)
+    public static void UpdateHandPoints<T>(GameObject[] points, T hand) where T : IHand
     {
-        if (hand != null)
+        if (hand.Fingers != null)
         {
             // palm
             points[0].transform.localPosition = hand.PalmPosition;
