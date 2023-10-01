@@ -14,7 +14,7 @@ public class UpdateHands : MonoBehaviour
 
     void Update()
     {
-        HandPoints.UpdateHandPoints<LeapHand>(leftHandPoints, leapProvider.CurrentFrame.GetHand(Chirality.Left) ?? new LeapHand());   // left hand
-        HandPoints.UpdateHandPoints<LeapHand>(rightHandPoints, leapProvider.CurrentFrame.GetHand(Chirality.Right) ?? new LeapHand()); // right hand
+        HandPoints.UpdateHandPoints(leftHandPoints, (LeapHand)leapProvider.CurrentFrame.GetHand(Chirality.Left));   // left hand
+        HandPoints.UpdateHandPoints(rightHandPoints, (LeapHand)leapProvider.CurrentFrame.GetHand(Chirality.Right)); // right hand
     }
 }

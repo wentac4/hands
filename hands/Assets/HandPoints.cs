@@ -16,7 +16,7 @@ public class LeapHand : IHand
     private List<Finger> fingers;
     private Vector3 palmPosition;
 
-    public LeapHand(List<Finger> newFingers = null, Vector3 newPalmPosition = new Vector3())
+    public LeapHand(List<Finger> newFingers, Vector3 newPalmPosition)
     {
         fingers = newFingers;
         palmPosition = newPalmPosition;
@@ -25,16 +25,16 @@ public class LeapHand : IHand
     public List<Finger> Fingers { get => fingers; }
     public Vector3 PalmPosition { get => palmPosition; }
     
-    public static implicit operator LeapHand(Hand hand) => new LeapHand(hand.Fingers, hand.PalmPosition);
+    public static explicit operator LeapHand(Hand hand) => (hand == null) ? null : new LeapHand(hand.Fingers, hand.PalmPosition);
 }
 
 public static class HandPoints
 {
     private static Vector3 initialPosition = new Vector3(0, 0, 0);
 
-    public static void UpdateHandPoints<T>(GameObject[] points, T hand) where T : IHand
+    public static void UpdateHandPoints(GameObject[] points, IHand hand)
     {
-        if (hand.Fingers != null)
+        if (hand != null)
         {
             // palm
             points[0].transform.localPosition = hand.PalmPosition;
