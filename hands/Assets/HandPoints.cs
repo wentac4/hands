@@ -1,32 +1,79 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 using Leap;
 using Leap.Unity;
 
+
 public interface IHand
 {
-    List<Finger> Fingers { get; }
+    IList<IFinger> Fingers { get; }
     Vector3 PalmPosition { get; }
 }
 
+public interface IFinger
+{
+    IList<IBone> bones { get; }
+}
+
+public interface IBone
+{
+    Vector3 PrevJoint { get; }
+    Vector3 NextJoint { get; }
+}
+
+
 public class LeapHand : IHand
 {
-    private List<Finger> fingers;
+    private IList<IFinger> fingers;
     private Vector3 palmPosition;
 
-    public LeapHand(List<Finger> newFingers, Vector3 newPalmPosition)
+    public LeapHand(IList<IFinger> newFingers, Vector3 newPalmPosition)
     {
         fingers = newFingers;
         palmPosition = newPalmPosition;
     }
 
-    public List<Finger> Fingers { get => fingers; }
+    public IList<IFinger> Fingers { get => fingers; }
     public Vector3 PalmPosition { get => palmPosition; }
     
-    public static explicit operator LeapHand(Hand hand) => (hand == null) ? null : new LeapHand(hand.Fingers, hand.PalmPosition);
+    public static explicit operator LeapHand(Hand hand) => (hand == null) ? null : new LeapHand(hand.Fingers.ConvertAll((finger) => (LeapFinger)finger).ToList<IFinger>(), hand.PalmPosition);
 }
+
+public class LeapFinger : IFinger
+{
+    private IList<IBone> Bones;
+
+    public LeapFinger(IList<IBone> newBones)
+    {
+        Bones = newBones;
+    }
+
+    public IList<IBone> bones { get => Bones; }
+
+    public static explicit operator LeapFinger(Finger finger) => new LeapFinger(Array.ConvertAll(finger.bones, (bone) => (LeapBone)bone));
+}
+
+public class LeapBone : IBone
+{
+    private Vector3 prevJoint;
+    private Vector3 nextJoint;
+
+    public LeapBone(Vector3 newPrevJoint, Vector3 newNextJoint)
+    {
+        prevJoint = newPrevJoint;
+        nextJoint = newNextJoint;
+    }
+
+    public Vector3 PrevJoint { get => prevJoint; }
+    public Vector3 NextJoint { get => nextJoint; }
+
+    public static explicit operator LeapBone(Bone bone) => new LeapBone(bone.PrevJoint, bone.NextJoint);
+}
+
 
 public static class HandPoints
 {
@@ -40,12 +87,12 @@ public static class HandPoints
             points[0].transform.localPosition = hand.PalmPosition;
 
             // thumb
-            Finger finger = hand.Fingers[0];
+            IFinger finger = hand.Fingers[0];
 
-            Bone metacarpal = finger.bones[0];
-            Bone proximal = finger.bones[1];
-            Bone intermediate = finger.bones[2];
-            Bone distal = finger.bones[3];
+            IBone metacarpal = finger.bones[0];
+            IBone proximal = finger.bones[1];
+            IBone intermediate = finger.bones[2];
+            IBone distal = finger.bones[3];
 
             //points[1].transform.localPosition = metacarpal.PrevJoint;
             points[1].transform.localPosition = proximal.NextJoint;
